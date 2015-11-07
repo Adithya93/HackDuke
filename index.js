@@ -6,7 +6,7 @@ var app = express();
 
 var dotenv = require('dotenv');
 dotenv.load();
-var _ = require('lodash');
+//var _ = require('lodash');
 var express = require('express');
 var bodyParser = require('body-parser');
 var session = require('cookie-session');
