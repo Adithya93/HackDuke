@@ -3,6 +3,12 @@ var express = require('express');
 var app = express();
 
 
+//var crypto = require('crypto-js');
+var AES = require("crypto-js/aes");
+var SHA256 = require("crypto-js/sha256");
+
+var message = "Booyakasha!"
+
 
 var dotenv = require('dotenv');
 dotenv.load();
@@ -18,7 +24,8 @@ var moment = require('moment');
 //var token_broker = "https://oauth.oit.duke.edu/oauth/token.php";
 //var duke_card_host = "https://dukecard-proxy.oit.duke.edu";
 var auth_url = process.env.ROOT_URL + "/home/auth";
-var db = require('monk')(process.env.MONGOHQ_URL || "mongodb://localhost/foodpoints");
+//var db = require('monk')(process.env.MONGOHQ_URL || "mongodb://localhost/foodpoints");
+var db = require('monk')('104.131.255.24');
 //var users = db.get("users");
 //var balances = db.get("balances");
 //var budgets = db.get("budgets");
@@ -30,6 +37,9 @@ var db = require('monk')(process.env.MONGOHQ_URL || "mongodb://localhost/foodpoi
 
 var numVisits = 0;
 
+app.use(bodyParser.json());
+//app.use('/deposits', bodyParser.urlencoded({extended : false}));
+
 app.listen(process.env.PORT || 3000, function() {
     console.log("Node app is running");
 });
@@ -37,7 +47,19 @@ app.listen(process.env.PORT || 3000, function() {
 app.get('/', function(req, res){
     numVisits ++;
     res.set('text/plain');
-    res.send("Hi Brandon!!! You're visiting for the " + numVisits + " time!");
+    //res.send("Hi Brandon!!! You're visiting for the " + numVisits + " time!");
+    res.send("Result of hashing " + message + " is " + SHA256(message));
     res.end();
     console.log("GET Request received");
+
+    console.log("Result of hashing " + message + " is " + SHA256(message));
 });
+
+app.post('/deposits', function(req, res) {
+	var body = req.body;
+//	console.log("Received deposit string " + JSON.stringify(req.body));
+//	res.send();
+	res.set('text/plain').send('Your encrypted message is ' + SHA256(body)).end();
+});
+
+
