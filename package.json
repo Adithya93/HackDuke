@@ -1,7 +1,7 @@
 {
-  "name": "foodpoints",
+  "name": "Academic Rigor",
   "version": "0.0.0",
-  "description": "App for tracking food points.",
+  "description": "Hack Duke Personal ATM Project",
   "main": "index.js",
   "scripts": {
     "test": "mocha",
