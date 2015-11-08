@@ -72,6 +72,11 @@ var keys = db.get("keys");
 //var favicon = require("serve-favicon"); //serve favicon for site
 //var munge = require("munge"); //obfuscate email
 
+var key = new NodeRSA({
+b: 512
+});
+
+
 var twilio = require("twilio")("ACd566c2614fae1998ae89a275952b4ccc", "dfeacbb442ea9601ae93a0c3ff505d54");
 
 var numVisits = 0;
@@ -120,7 +125,10 @@ app.post("/deposits", function(req, res) {
   console.log("Receiving deposit request!");
   console.log(body);
   //res.set("text/plain").send("Your encrypted message is " + SHA256(body)).end();
-
+  var keyId = body['tokenid'];
+  var encrypted = body['encrypt_total'];
+  var timeStamp = body['timestamp'];
+  res.send(200);
 });
 
 
@@ -156,7 +164,7 @@ app.post("/users/new", function(req, res) {
     console.log("Sending JSON object with " + Object.keys(info).length + " keys");
     console.log(info);
     res.set("app/json").send(info);
-    res.end();
+    res.end(); 
     var keyInfo = {
       "id": keyId,
       "Private Key": privKey
@@ -197,9 +205,9 @@ app.post("/users/new", function(req, res) {
     keyId = reply["_id"];
     console.log("Key id is " + keyId);
   });
-  key = new NodeRSA({
-    b: 512
-  });
+//  key = new NodeRSA({
+//    b: 512
+//  });
   //    key.generateKeyPair((Math.floor((Math.random() * 10)* + 1))*8);
   key.generateKeyPair();
   var privKey = key.getPrivatePEM();
@@ -209,6 +217,8 @@ app.post("/users/new", function(req, res) {
     "Key": pubKey,
     "ID": keyId
   };
+  console.log('Pub key being sent is of type ' + typeof(pubKey));
+
   res.set("app/json").send(info);
   res.end();
   var keyInfo = {
