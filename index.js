@@ -1,13 +1,49 @@
 var http = require('http');
 var express = require('express');
 var app = express();
+var fs = require('fs');
+
+//var privKey = fs.createWriteStream();
+//var pubKey = fs.createWriteStream();
 
 
 //var crypto = require('crypto-js');
 var AES = require("crypto-js/aes");
 var SHA256 = require("crypto-js/sha256");
+//var NodeRSA = require('node-rsa');
+var crypto = require('crypto');
 
-var message = "Booyakasha!"
+//var sign = crypto.createSign('RSA-SHA256');
+
+var NodeRSA = require('node-rsa');
+
+//var key = new NodeRSA({b: 512});
+
+//var keyPair = key.generateKeyPair(512);
+//console.log(keyPair);
+//var privKey = key.getPrivatePEM();
+//var pubKey = key.getPublicPEM();
+//console.log('Private key is ' + privKey + ' and public key is ' + pubKey);
+//console.log('Private key is');
+//console.log(privKey);
+//console.log('Public key is');
+//console.log(pubKey);
+
+
+//var pubData = pubKey;
+//var privData = privKey;
+
+//key.importKey(pubData, 'pkcs8');
+//var publicDer = key.exportKey('pkcs8-public-der');
+
+//var publicDer = new NodeRSA(pubKey).exportKey('pkcs8-public-der');
+//var publicDer = pubKey.exportKey('pkcs8-public-der');
+//var privateDer = new NodeRSA(privKey).exportKey('pkcs1-der');
+//console.log("Public Der: " + publicDer);
+//console.log("Private Der: " + privateDer);
+
+
+var message = "Booyakasha!";
 
 
 var dotenv = require('dotenv');
@@ -25,7 +61,10 @@ var moment = require('moment');
 //var duke_card_host = "https://dukecard-proxy.oit.duke.edu";
 //var auth_url = process.env.ROOT_URL + "/home/auth";
 //var db = require('monk')(process.env.MONGOHQ_URL || "mongodb://localhost/foodpoints");
-var db = require('monk')('104.131.255.24');
+var db = require('monk')('104.131.255.24/HackDuke');
+var users = db.get('users');
+var keys = db.get('keys');
+
 //var users = db.get("users");
 //var balances = db.get("balances");
 //var budgets = db.get("budgets");
@@ -53,13 +92,48 @@ app.get('/', function(req, res){
     console.log("GET Request received");
 
     console.log("Result of hashing " + message + " is " + SHA256(message));
+
+    console.log("All users: ");
+    users.find({}, function(err, res) {
+      console.log(res);  
+    });
 });
 
+// Transaction requests sent by SMS
 app.post('/deposits', function(req, res) {
 	var body = req.body;
 //	console.log("Received deposit string " + JSON.stringify(req.body));
 //	res.send();
 	res.set('text/plain').send('Your encrypted message is ' + SHA256(body)).end();
+});
+
+
+// Registration of new user
+app.post('/users/new', function(req, res){
+
+    var newUser = req.body;
+    var keyId;
+    console.log("Received JSON object for new user:");
+    console.log(newUser);
+    users.insert(newUser, function(err, reply) {
+        //res.send(reply);
+        console.log("Added new user to database");
+        keyId = reply['_id'];
+        console.log("Key id is " + keyId);
+    });
+    //var key
+    var key = new NodeRSA({b: 512});
+    
+    var privKey = key.getPrivatePEM();
+    var pubKey = key.getPublicPEM();
+    var info = "Your public key is:\n" + pubKey;
+    res.send(info + pubKey);
+    res.end();
+    var keyInfo = {'id' : keyId, 'Private Key' : privKey};
+    keys.insert(keyInfo, function(err, rep) {
+        console.log('Saved new private key into database');
+        console.log(rep);
+    });
 });
 
 
