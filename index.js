@@ -175,8 +175,8 @@ app.post("/users/new", function(req, res) {
       b: 64
     });
 
-    keyId = reply["_id"];
-    keyId = smallKey.encrypt('' + (+ new Date()), 'base64');
+    //keyId = reply["_id"];
+    keyId = smallKey.encrypt('' + new Date(), 'base64');
     console.log("Key id is " + keyId);
 
     //    key.generateKeyPair((Math.floor((Math.random() * 10)* + 1))*8);
