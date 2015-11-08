@@ -76,7 +76,9 @@ var twilio = require('twilio')('ACd566c2614fae1998ae89a275952b4ccc', 'dfeacbb442
 
 var numVisits = 0;
 
-app.use(bodyParser.json());
+app.use('/users/new', bodyParser.json());
+app.use('/deposits', bodyParser.json());
+app.use('/twilio', bodyParser.urlencoded({extended:false}));
 app.listen(process.env.PORT || 3000, function() {
   console.log("Node app is running");
 });
@@ -103,7 +105,8 @@ app.post('/deposits', function(req, res) {
   var body = req.body;
   //	console.log("Received deposit string " + JSON.stringify(req.body));
   //	res.send();
-  res.set('text/plain').send('Your encrypted message is ' + SHA256(body)).end();
+  //res.set('text/plain').send('Your encrypted message is ' + SHA256(body)).end();
+
 });
 
 
@@ -196,7 +199,7 @@ app.post('/users/new', function(req, res) {
   });
 });
 
-app.get('/twilio', function(req, res) {
+app.post('/twilio', function(req, res) {
   if (twilio.validateExpressRequest(req, 'dfeacbb442ea9601ae93a0c3ff505d54')) {
     var resp = new twilio.TwimlResponse();
     console.log("twilio req is", req);
