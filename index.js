@@ -134,13 +134,20 @@ app.post("/deposits", function(req, res) {
   var timeStamp = body['timestamp'];
   res.sendStatus(200);
   var privateKey = keys.find({'id':keyId}, function(err, reply) {
-    //console.log('Private key retrieved is\n' + reply);
-    var privKeyStr = reply['Private Key'];
+    console.log('Private key object in DB is\n' + JSON.stringify(reply));
+    var privKeyStr = reply[0]['Private Key'];
     console.log('Private key retrieved is\n' + privKeyStr);
-    var privKey = new NodeRSA(privKeyStr);
-    console.log(typeof(privKey));
+
+    var start = "-----BEGIN PUBLIC KEY-----\n";
+    var end = "\n-----END PUBLIC KEY-----";
+
+    var legitStr = privKeyStr.substring(privKeyStr.indexOf(start) + start.length, privKeyStr.indexOf(end));
+    //var privKey = new NodeRSA(privKeyStr);
+    var legitKey = new NodeRSA(legitStr);
+    //console.log(typeof(privKey));
     try {
-        var decrypted = privKey.decrypt(encrypted, 'base64');
+    //    var decrypted = privKey.decrypt(encrypted, 'base64');
+        var decrypted = legitKey.decrypt(encrypted, 'base64');
     }
     catch (error) {
         console.log('Problem decrypting! Probably an invalid hash!');
