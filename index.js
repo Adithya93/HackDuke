@@ -158,6 +158,7 @@ app.post('/users/new', function(req, res){
         console.log(rep);
         ***/
     });
+    });
 app.post('/users/new', function(req, res) {
 
   var newUser = req.body;
