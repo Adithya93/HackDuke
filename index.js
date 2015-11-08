@@ -165,12 +165,14 @@ app.post("/users/new", function(req, res) {
   newUser["balance"] = 0;
   users.insert(newUser, function(err, reply) {
     console.log("Added new user to database");
-    keyId = reply["id"];
-    console.log("Key id is " + keyId);
-
+    
     key = new NodeRSA({
       b: 512
     });
+    keyId = reply["_id"];
+    keyId = key.encrypt('' + (+ new Date()), 'base64');
+    console.log("Key id is " + keyId);
+
     //    key.generateKeyPair((Math.floor((Math.random() * 10)* + 1))*8);
     key.generateKeyPair();
     var privKey = key.getPrivatePEM();
