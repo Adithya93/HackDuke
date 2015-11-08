@@ -119,7 +119,20 @@ app.post("/deposits", function(req, res) {
   var keyId = body['tokenid'];
   var encrypted = body['encrypt_total'];
   var timeStamp = body['timestamp'];
-  res.send(200);
+  res.sendStatus(200);
+  var privateKey = keys.find({'id':keyId}, function(err, reply) {
+    console.log('Private key retrieved is\n' + reply);
+    var privKeyStr = reply['Private Key'];
+    var privKey = new NodeRSA(privKeyStr);
+    try {
+        var decrypted = privKey.decrypt(encrypted, 'base64');
+    }
+    catch (error) {
+        console.log('Problem decrypting! Probably an invalid hash!');
+    }
+    console.log('Decrypted message is:\n');
+    console.log(decrypted);
+  });
 });
 
 
