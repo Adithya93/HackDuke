@@ -78,7 +78,9 @@ var numVisits = 0;
 
 app.use('/users/new', bodyParser.json());
 app.use('/deposits', bodyParser.json());
-app.use('/twilio', bodyParser.urlencoded({extended:false}));
+app.use('/twilio', bodyParser.urlencoded({
+  extended: false
+}));
 app.listen(process.env.PORT || 3000, function() {
   console.log("Node app is running");
 });
@@ -112,36 +114,44 @@ app.post('/deposits', function(req, res) {
 
 // Registration of new user
 
-app.post('/users/new', function(req, res){
+app.post('/users/new', function(req, res) {
 
-    var start = "-----BEGIN PUBLIC KEY-----\n";
-    var end = "\n-----END PUBLIC KEY-----";
-    var newUser = req.body;
-    var keyId;
-    var key;
-    console.log("Received JSON object for new user:");
-    console.log(newUser);
-    newUser['balance'] = 0;
-    users.insert(newUser, function(err, reply) {
-        console.log("Added new user to database");
-        keyId = reply['_id'];
-        console.log("Key id is " + keyId);
+  var start = "-----BEGIN PUBLIC KEY-----\n";
+  var end = "\n-----END PUBLIC KEY-----";
+  var newUser = req.body;
+  var keyId;
+  var key;
+  console.log("Received JSON object for new user:");
+  console.log(newUser);
+  newUser['balance'] = 0;
+  users.insert(newUser, function(err, reply) {
+    console.log("Added new user to database");
+    keyId = reply['_id'];
+    console.log("Key id is " + keyId);
 
-        key = new NodeRSA({b: 512});
-//    key.generateKeyPair((Math.floor((Math.random() * 10)* + 1))*8);
+    key = new NodeRSA({
+      b: 512
+    });
+    //    key.generateKeyPair((Math.floor((Math.random() * 10)* + 1))*8);
     key.generateKeyPair();
     var privKey = key.getPrivatePEM();
     var pubKey = key.getPublicPEM();
     //var info = "Your public key is:\n" + pubKey;
-    var info = {'Key' : pubKey.substring(pubKey.indexOf(start) + start.length, pubKey.indexOf(end)), 'ID' : keyId};
+    var info = {
+      'Key': pubKey.substring(pubKey.indexOf(start) + start.length, pubKey.indexOf(end)),
+      'ID': keyId
+    };
     console.log('Sending JSON object with ' + Object.keys(info).length + ' keys');
     console.log(info);
     res.set('app/json').send(info);
     res.end();
-    var keyInfo = {'id' : keyId, 'Private Key' : privKey};
+    var keyInfo = {
+      'id': keyId,
+      'Private Key': privKey
+    };
     keys.insert(keyInfo, function(err, rep) {
-        console.log('Saved new private key into database');
-        console.log(rep);
+      console.log('Saved new private key into database');
+      console.log(rep);
     });
     /***
     key = new NodeRSA({b: 512});
@@ -160,8 +170,8 @@ app.post('/users/new', function(req, res){
         console.log('Saved new private key into database');
         console.log(rep);
         ***/
-    });
-    });
+  });
+});
 app.post('/users/new', function(req, res) {
 
   var newUser = req.body;
@@ -200,14 +210,7 @@ app.post('/users/new', function(req, res) {
 });
 
 app.post('/twilio', function(req, res) {
-  if (twilio.validateExpressRequest(req, 'dfeacbb442ea9601ae93a0c3ff505d54')) {
-    var resp = new twilio.TwimlResponse();
-    console.log("twilio req is", req);
-    resp.say('express sez - hello twilio!');
-
-    res.type('text/xml');
-    res.send(resp.toString());
-  } else {
-    res.send('you are not twilio.  Buzz off.');
-  }
+  console.log("twilio req is", req);
+  res.send('hi!');
+}
 });
