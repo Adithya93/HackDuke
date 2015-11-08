@@ -94,6 +94,7 @@ app.get('/', function(req, res){
     console.log("Result of hashing " + message + " is " + SHA256(message));
 
     console.log("All users: ");
+    console.log();
     users.find({}, function(err, res) {
       console.log(res);  
     });
@@ -113,21 +114,23 @@ app.post('/users/new', function(req, res){
 
     var newUser = req.body;
     var keyId;
+    var key;
     console.log("Received JSON object for new user:");
     console.log(newUser);
+    newUser['balance'] = 0;
     users.insert(newUser, function(err, reply) {
-        //res.send(reply);
         console.log("Added new user to database");
         keyId = reply['_id'];
         console.log("Key id is " + keyId);
     });
-    //var key
-    var key = new NodeRSA({b: 512});
-    
+    key = new NodeRSA({b: 512});
+//    key.generateKeyPair((Math.floor((Math.random() * 10)* + 1))*8);
+    key.generateKeyPair();
     var privKey = key.getPrivatePEM();
     var pubKey = key.getPublicPEM();
-    var info = "Your public key is:\n" + pubKey;
-    res.send(info + pubKey);
+    //var info = "Your public key is:\n" + pubKey;
+    var info = {'Key' : pubKey, 'ID' : keyId};
+    res.set('app/json').send(info);
     res.end();
     var keyInfo = {'id' : keyId, 'Private Key' : privKey};
     keys.insert(keyInfo, function(err, rep) {
