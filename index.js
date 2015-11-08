@@ -212,5 +212,4 @@ app.post('/users/new', function(req, res) {
 app.post('/twilio', function(req, res) {
   console.log("twilio req is", req);
   res.send('hi!');
-}
 });
