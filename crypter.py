@@ -38,6 +38,7 @@ def encrypt_data(res,pubKeyString):  #uuid,amount,tokenID,st
     uuid=res[0]
     amount=res[1]
     tokenid=int(res[2])
+    print 'Key used in encrypt_data method is ' + pubKeyString
     keyDER = b64decode(pubKeyString)
     keyPub = RSA.importKey(keyDER)
     
@@ -103,7 +104,8 @@ if __name__ == "__main__":
     result = requests.post("http://still-scrubland-1100.herokuapp.com/users/new",{"uuid" : rs[0],"amount" : rs[1],"tokenID":rs[2],"timestamp":rs[3]})
     res = result.json()
 
-    pub = res["Key"].encode("utf-8")
+    #pub = res["Key"].encode("utf-8")
+    pub = res["Key"]
     print type(pub)
     print pub
     retrieve_and_post(rs,pub,"http://still-scrubland-1100.herokuapp.com/deposits")
