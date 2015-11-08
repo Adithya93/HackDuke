@@ -107,14 +107,11 @@ app.post("/deposits", function(req, res) {
   var body = req.body;
   //	console.log("Received deposit string " + JSON.stringify(req.body));
   //	res.send();
-<<<<<<< HEAD
   //res.set('text/plain').send('Your encrypted message is ' + SHA256(body)).end();
   console.log("Receiving deposit request!");
   console.log(body);
-=======
   //res.set("text/plain").send("Your encrypted message is " + SHA256(body)).end();
 
->>>>>>> 9acc169d6795be32d624ace78a3f07710ac9cb2b
 });
 
 
