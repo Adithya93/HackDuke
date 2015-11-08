@@ -80,7 +80,6 @@ var twilio = require('twilio')('ACd566c2614fae1998ae89a275952b4ccc', 'dfeacbb442
 var numVisits = 0;
 
 app.use(bodyParser.json());
-app.use(express.urlencoded());
 app.listen(process.env.PORT || 3000, function() {
   console.log("Node app is running");
 });
