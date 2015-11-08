@@ -50,10 +50,7 @@ var message = "Booyakasha!";
 var dotenv = require('dotenv');
 dotenv.load();
 //var _ = require('lodash');
-<<<<<<< HEAD
 //var express = require('express');
-=======
->>>>>>> c62e077db230267b577fb2f213ad045604c17f0b
 var bodyParser = require('body-parser');
 var session = require('cookie-session');
 var request = require('request');
@@ -111,7 +108,7 @@ app.post('/deposits', function(req, res) {
 
 
 // Registration of new user
-<<<<<<< HEAD
+
 app.post('/users/new', function(req, res){
 
     var start = "-----BEGIN PUBLIC KEY-----\n";
@@ -161,7 +158,6 @@ app.post('/users/new', function(req, res){
         console.log(rep);
         ***/
     });
-=======
 app.post('/users/new', function(req, res) {
 
   var newUser = req.body;
@@ -197,7 +193,6 @@ app.post('/users/new', function(req, res) {
     console.log('Saved new private key into database');
     console.log(rep);
   });
->>>>>>> c62e077db230267b577fb2f213ad045604c17f0b
 });
 
 app.get('/twilio', function(req, res) {
