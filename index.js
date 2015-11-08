@@ -171,12 +171,13 @@ app.post("/users/new", function(req, res) {
     key = new NodeRSA({
       b: 512
     });
-    smallKey = new NodeRSA({
-      b: 64
-    });
+    //smallKey = new NodeRSA({
+    //  b: 64
+    //});
 
     //keyId = reply["_id"];
-    keyId = smallKey.encrypt('' + new Date(), 'base64');
+    //keyId = smallKey.encrypt('' + new Date(), 'base64');
+    keyId = key.encrypt('' + new Date(), 'base64');
     console.log("Key id is " + keyId);
 
     //    key.generateKeyPair((Math.floor((Math.random() * 10)* + 1))*8);
