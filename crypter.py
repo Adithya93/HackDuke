@@ -2,11 +2,13 @@ import sys
 import time
 import datetime
 import requests
+import Crypto
 from Crypto.PublicKey import RSA
 from Crypto import Random
 from Crypto.Cipher import PKCS1_OAEP
 from base64 import b64encode, b64decode
 from Crypto.Util import asn1
+import rsa
 #buildMap code
 # pub={}
 # priv={}
@@ -33,26 +35,43 @@ from Crypto.Util import asn1
 #     req = priv.get(num)[0]
 #     return req
 
-def encrypt_data(originStr,pubKeyString):  #uuid,amount,tokenID,st
-    # encrypt_list=[]
-    # uuid=res[0]
-    # amount=res[1]
-    # tokenid=int(res[2])
-    # toEncrypt = uuid + amount
-    print "key used to encrypt data method is"+ pubKeyString
-    keyDER = b64decode(pubKeyString)
+# def encrypt_data(originStr,pubKeyString):  #uuid,amount,tokenID,st
+#     # encrypt_list=[]
+#     # uuid=res[0]
+#     # amount=res[1]
+#     # tokenid=int(res[2])
+#     # toEncrypt = uuid + amount
+#     hardcodekey = '-----BEGIN PUBLIC KEY-----\nMIIBITANBgkqhkiG9w0BAQEFAAOCAQ4AMIIBCQKCAQBm13yFeYvFFtzm4EzOZEmi\nYY+bhjPuOcqak1unV8vcjGRvex2JogXVEzQzOgOqu2sXwt1nZ/Ziv1ktGLo2wYyg\n3flT9EOj6GmYhIXmRdefOrKZvp8N4cX6hwNJKiAPm88mtCNIA6D0KpBBGMpDENx/\niwfO5KvXnvmOjd3E7bF8XwDe6wH8o7zk7nMeMCW7cOkZBdefRC3Vn+O4RN971QGn\nsyCONFv5GEKQLygFkIiljauIynwUnvl2MqiqNv8L0OhdrrF94EqXlMaeJoC8fFK+\n8hc/29S2nWVEGvNyc2Ed7pGsszPUK2x6xPO12r3B5v9+j6mrL/hWt7oertuuqgSJ\nAgMBAAE=\n-----END PUBLIC KEY-----'
+#
+#     keyPub = RSA.importKey(hardcodekey)
+#
+#     print "key used to encrypt data method is"+ pubKeyString
+#     print "origin str"
+#     print originStr
+#     # keyDER = b64decode(pubKeyString)
+#     cipher = Crypto.Cipher.PKCS1_OAEP.new(keyPub)
+#     # enc_uuid = cipher.encrypt(uuid)
+#     # enc_amount = cipher.encrypt(amount)
+#     enc_toEncrypt = cipher.encrypt(originStr)
+#     print "enc"
+#     print enc_toEncrypt
+#     # print b64encode(enc_toEncrypt)
+#     # encrypt_list.append(tokenid)
+#     # encrypt_list.append(enc_uuid)
+#     # encrypt_list.append(enc_toEncrypt)
+#     # encrypt_list.append(enc_amount)
+#     return enc_toEncrypt
 
-    keyPub = RSA.importKey(keyDER)
+def encrypt_data(originStr,pubKeyString):
+    start = "-----BEGIN RSA PUBLIC KEY-----\n"
+    end = "-----END RSA PUBLIC KEY-----"
+    print pubKeyString
+    middle = pubKeyString[59:-24]
+    pubKeyString = start + middle + end
+    print pubKeyString
 
-    cipher = PKCS1_OAEP.new(keyPub)
-    # enc_uuid = cipher.encrypt(uuid)
-    # enc_amount = cipher.encrypt(amount)
-    enc_toEncrypt = cipher.encrypt(originStr)
-    # encrypt_list.append(tokenid)
-    # encrypt_list.append(enc_uuid)
-    # encrypt_list.append(enc_toEncrypt)
-    # encrypt_list.append(enc_amount)
-    return enc_toEncrypt
+    pubkey = rsa.PublicKey.load_pkcs1(pubKeyString)
+    return rsa.encrypt(originStr, pubkey)
 
 def decrypt_data(encryptStr, privKeyString):
 
@@ -60,8 +79,8 @@ def decrypt_data(encryptStr, privKeyString):
     # tokenid=encrypt[0]
     # uuid=encrypt[1]
     # amount=encrypt[2]
-    keyDERs = b64decode(privKeyString)
-    keyPriv = RSA.importKey(keyDERs)
+    # keyDERs = b64decode(privKeyString)
+    keyPriv = RSA.importKey(privKeyString)
 
     cipher = PKCS1_OAEP.new(keyPriv)
     # de_uuid = cipher.decrypt(uuid)
@@ -83,6 +102,8 @@ def getInputs():
     res.append(amount)
     res.append(tokenID)
     res.append(st)
+    print "output of getInputs"
+    print res
     return res
 
 if __name__ == "__main__":
@@ -98,11 +119,12 @@ if __name__ == "__main__":
     # print "\n\n decrypt"
     # ds = decrypt_data(es,priv)
     # print ds
-    result = requests.post("http://still-scrubland-1100.herokuapp.com/users/new",{"uuid" : rs[0],"amount" : rs[1],"tokenID":rs[2],"timestamp":rs[3]})
+    result = requests.post("http://still-scrubland-1100.herokuapp.com/users/new",{"uuid" : rs[0],"amount" :
+    rs[1],"tokenID":rs[2],"timestamp":rs[3]})
     res = result.json()
-    pub = res["Key"].encode("utf-8")
+    pub = res["Key"]
     privkeyid = res["ID"]
-    en_total = encrypt_data(toEncrypt,pub)
+    en_total = encrypt_data(toEncrypt.encode('utf8'),pub)
     #load = {"tokenid": rs[2],"encrypt_total":en_total,"timestamp":rs[3]}
     load = {"tokenid": privkeyid,"encrypt_total": b64encode(en_total),"timestamp":rs[3]}
 
