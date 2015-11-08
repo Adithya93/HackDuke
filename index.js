@@ -73,7 +73,7 @@ var keys = db.get("keys");
 //var munge = require("munge"); //obfuscate email
 
 var key = new NodeRSA({
-b: 512
+  b: 512
 });
 
 
@@ -83,12 +83,16 @@ var numVisits = 0;
 
 app.engine('jade', require('jade').__express);
 app.use(express.static(__dirname + '/public'));
-app.use("/getUser", bodyParser.json());
-app.use("/users/new", bodyParser.json());
-app.use("/deposits", bodyParser.json());
-app.use("/twilio", bodyParser.urlencoded({
-  extended: false
-}));
+// app.use("/getUser", bodyParser.json());
+// app.use("/users/new", bodyParser.json());
+// app.use("/deposits", bodyParser.json());
+// app.use("/twilio", bodyParser.urlencoded({
+//   extended: false
+// }));
+app.use(bodyParser.json()); // for parsing application/json
+app.use(bodyParser.urlencoded({
+  extended: true
+})); // for parsing application/x-www-form-urlencoded
 app.listen(process.env.PORT || 3000, function() {
   console.log("Node app is running");
 });
@@ -164,7 +168,7 @@ app.post("/users/new", function(req, res) {
     console.log("Sending JSON object with " + Object.keys(info).length + " keys");
     console.log(info);
     res.set("app/json").send(info);
-    res.end(); 
+    res.end();
     var keyInfo = {
       "id": keyId,
       "Private Key": privKey
@@ -205,9 +209,9 @@ app.post("/users/new", function(req, res) {
     keyId = reply["_id"];
     console.log("Key id is " + keyId);
   });
-//  key = new NodeRSA({
-//    b: 512
-//  });
+  //  key = new NodeRSA({
+  //    b: 512
+  //  });
   //    key.generateKeyPair((Math.floor((Math.random() * 10)* + 1))*8);
   key.generateKeyPair();
   var privKey = key.getPrivatePEM();
@@ -241,7 +245,7 @@ app.post("/twilio", function(req, res) {
 
 app.post("/getUser", function(req, res) {
   console.log("req body",
-    req.body.userName);
+    req.body);
   users.find({
     name: req.body.userName
   }, function(err, doc) {
