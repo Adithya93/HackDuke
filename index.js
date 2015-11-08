@@ -18,6 +18,10 @@ var NodeRSA = require("node-rsa");
 
 //var key = new NodeRSA({b: 512});
 
+
+var testStr = 'encryptThis';
+var encryptedMessage;
+
 //var keyPair = key.generateKeyPair(512);
 //console.log(keyPair);
 //var privKey = key.getPrivatePEM();
@@ -138,18 +142,39 @@ app.post("/deposits", function(req, res) {
     var privKeyStr = reply[0]['Private Key'];
     console.log('Private key retrieved is\n' + privKeyStr);
 
-    var start = "-----BEGIN PUBLIC KEY-----\n";
-    var end = "\n-----END PUBLIC KEY-----";
+//    var start = "-----BEGIN PUBLIC KEY-----\n";
+//    var end = "\n-----END PUBLIC KEY-----";
 
 //    var legitStr = privKeyStr.substring(privKeyStr.indexOf(start) + start.length, privKeyStr.indexOf(end));
     //var privKey = new NodeRSA(privKeyStr);
-    var legitKey = new NodeRSA(privKeyStr);
+    //var legitKey = new NodeRSA(privKeyStr);
+    
+    var key = new NodeRSA({
+      b: 512
+    });
+    //var legitKey = key.loadFromPEM(privKeyStr);
     //var legitKey = new NodeRSA(legitStr);
+    var legitKey = new NodeRSA(privKeyStr);
     //console.log(typeof(privKey));
+    //console.log('Is key recognized as private? ' + legitKey.isPrivate());
+
+    try{
+//        var decrypted = legitKey.decrypt(encryptedMessage, 'base64');
+        var decryptedMessage = legitKey.decrypt(encryptedMessage, 'utf8');
+        console.log('Decrypted message is ' + decryptedMessage);
+    }
+    catch (error) {
+        console.log('Even local encryption-decryption not working');
+        console.log(error);
+    }
+
+
 
     try {
     //    var decrypted = privKey.decrypt(encrypted, 'base64');
-        var decrypted = legitKey.decrypt(encrypted, 'base64');
+        console.log('Trying to decrypt ' + encrypted);
+        //var decrypted = legitKey.decrypt(encrypted, 'base64');
+        var decrypted = legitKey.decrypt(encrypted, 'utf8');
     }
     catch (error) {
         console.log('Problem decrypting! Probably an invalid hash!');
@@ -198,6 +223,14 @@ app.post("/users/new", function(req, res) {
       "Key": pubKey.substring(pubKey.indexOf(start) + start.length, pubKey.indexOf(end)),
       "ID": keyId
     };
+
+    
+    //var privTest = new NodeRSA(privKey);
+    var pubTest = new NodeRSA(pubKey);
+    encryptedMessage = pubTest.encrypt(testStr, 'base64');
+    console.log('Base 64 encoded local test str is ' + encryptedMessage);
+
+
     console.log("Sending JSON object with " + Object.keys(info).length + " keys");
     console.log(info);
     res.set("app/json").send(info);
