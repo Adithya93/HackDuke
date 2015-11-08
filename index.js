@@ -143,6 +143,7 @@ app.post("/deposits", function(req, res) {
     }
     catch (error) {
         console.log('Problem decrypting! Probably an invalid hash!');
+        console.log(error);
     }
     console.log('Decrypted message is:\n');
     console.log(decrypted);
@@ -210,6 +211,8 @@ app.post("/users/new", function(req, res) {
     ***/
   });
 });
+
+/***
 app.post("/users/new", function(req, res) {
 
   var newUser = req.body;
@@ -248,7 +251,7 @@ app.post("/users/new", function(req, res) {
     console.log(rep);
   });
 });
-
+***/
 app.post("/twilio", function(req, res) {
   console.log("twilio req is", req.body.Body);
   transactions.insert({
