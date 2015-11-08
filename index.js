@@ -136,8 +136,9 @@ app.post("/deposits", function(req, res) {
   var privateKey = keys.find({'id':keyId}, function(err, reply) {
     //console.log('Private key retrieved is\n' + reply);
     var privKeyStr = reply['Private Key'];
-    console.log('Private key retrieved is\n' + reply);
+    console.log('Private key retrieved is\n' + privKeyStr);
     var privKey = new NodeRSA(privKeyStr);
+    console.log(typeof(privKey));
     try {
         var decrypted = privKey.decrypt(encrypted, 'base64');
     }
@@ -160,6 +161,7 @@ app.post("/users/new", function(req, res) {
   var newUser = req.body;
   var keyId;
   var key;
+  var smallKey;
   console.log("Received JSON object for new user:");
   console.log(newUser);
   newUser["balance"] = 0;
@@ -169,8 +171,12 @@ app.post("/users/new", function(req, res) {
     key = new NodeRSA({
       b: 512
     });
+    smallKey = new NodeRSA({
+      b: 64
+    });
+
     keyId = reply["_id"];
-    keyId = key.encrypt('' + (+ new Date()), 'base64');
+    keyId = smallKey.encrypt('' + (+ new Date()), 'base64');
     console.log("Key id is " + keyId);
 
     //    key.generateKeyPair((Math.floor((Math.random() * 10)* + 1))*8);
