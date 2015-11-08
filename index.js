@@ -52,7 +52,7 @@ dotenv.load();
 var express = require('express');
 var bodyParser = require('body-parser');
 var session = require('cookie-session');
-//var app = express();
+var app = express();
 var request = require('request');
 var async = require('async');
 var moment = require('moment');
