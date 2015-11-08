@@ -49,7 +49,7 @@ var message = "Booyakasha!";
 var dotenv = require('dotenv');
 dotenv.load();
 //var _ = require('lodash');
-var express = require('express');
+//var express = require('express');
 var bodyParser = require('body-parser');
 var session = require('cookie-session');
 //var app = express();
@@ -112,6 +112,8 @@ app.post('/deposits', function(req, res) {
 // Registration of new user
 app.post('/users/new', function(req, res){
 
+    var start = "-----BEGIN PUBLIC KEY-----\n";
+    var end = "\n-----END PUBLIC KEY-----";
     var newUser = req.body;
     var keyId;
     var key;
@@ -122,7 +124,24 @@ app.post('/users/new', function(req, res){
         console.log("Added new user to database");
         keyId = reply['_id'];
         console.log("Key id is " + keyId);
+
+        key = new NodeRSA({b: 512});
+//    key.generateKeyPair((Math.floor((Math.random() * 10)* + 1))*8);
+    key.generateKeyPair();
+    var privKey = key.getPrivatePEM();
+    var pubKey = key.getPublicPEM();
+    //var info = "Your public key is:\n" + pubKey;
+    var info = {'Key' : pubKey.substring(pubKey.indexOf(start) + start.length, pubKey.indexOf(end)), 'ID' : keyId};
+    console.log('Sending JSON object with ' + Object.keys(info).length + ' keys');
+    console.log(info);
+    res.set('app/json').send(info);
+    res.end();
+    var keyInfo = {'id' : keyId, 'Private Key' : privKey};
+    keys.insert(keyInfo, function(err, rep) {
+        console.log('Saved new private key into database');
+        console.log(rep);
     });
+    /***
     key = new NodeRSA({b: 512});
 //    key.generateKeyPair((Math.floor((Math.random() * 10)* + 1))*8);
     key.generateKeyPair();
@@ -130,12 +149,15 @@ app.post('/users/new', function(req, res){
     var pubKey = key.getPublicPEM();
     //var info = "Your public key is:\n" + pubKey;
     var info = {'Key' : pubKey, 'ID' : keyId};
+    console.log('Sending JSON object with ' + Object.keys(info).length + ' keys');
+    console.log(info);
     res.set('app/json').send(info);
     res.end();
     var keyInfo = {'id' : keyId, 'Private Key' : privKey};
     keys.insert(keyInfo, function(err, rep) {
         console.log('Saved new private key into database');
         console.log(rep);
+        ***/
     });
 });
 
