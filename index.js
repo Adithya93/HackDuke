@@ -134,8 +134,9 @@ app.post("/deposits", function(req, res) {
   var timeStamp = body['timestamp'];
   res.sendStatus(200);
   var privateKey = keys.find({'id':keyId}, function(err, reply) {
-    console.log('Private key retrieved is\n' + reply);
+    //console.log('Private key retrieved is\n' + reply);
     var privKeyStr = reply['Private Key'];
+    console.log('Private key retrieved is\n' + reply);
     var privKey = new NodeRSA(privKeyStr);
     try {
         var decrypted = privKey.decrypt(encrypted, 'base64');
