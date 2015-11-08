@@ -141,10 +141,12 @@ app.post("/deposits", function(req, res) {
     var start = "-----BEGIN PUBLIC KEY-----\n";
     var end = "\n-----END PUBLIC KEY-----";
 
-    var legitStr = privKeyStr.substring(privKeyStr.indexOf(start) + start.length, privKeyStr.indexOf(end));
+//    var legitStr = privKeyStr.substring(privKeyStr.indexOf(start) + start.length, privKeyStr.indexOf(end));
     //var privKey = new NodeRSA(privKeyStr);
-    var legitKey = new NodeRSA(legitStr);
+    var legitKey = new NodeRSA(privKeyStr);
+    //var legitKey = new NodeRSA(legitStr);
     //console.log(typeof(privKey));
+
     try {
     //    var decrypted = privKey.decrypt(encrypted, 'base64');
         var decrypted = legitKey.decrypt(encrypted, 'base64');
