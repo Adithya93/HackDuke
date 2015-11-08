@@ -1,8 +1,9 @@
+"use strict";
 var http = require('http');
 var express = require('express');
 var app = express();
 var fs = require('fs');
-
+var path = require('path');
 //var privKey = fs.createWriteStream();
 //var pubKey = fs.createWriteStream();
 
@@ -75,11 +76,7 @@ var twilio = require('twilio')('ACd566c2614fae1998ae89a275952b4ccc', 'dfeacbb442
 var numVisits = 0;
 
 app.use(bodyParser.json());
-//app.use('/deposits', bodyParser.urlencoded({extended : false}));
-app.configure(function() {
-  /* Configure your express app... */
-  app.use(express.urlencoded());
-});
+app.use(express.urlencoded());
 app.listen(process.env.PORT || 3000, function() {
   console.log("Node app is running");
 });
