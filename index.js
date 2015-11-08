@@ -6,8 +6,6 @@ var fs = require("fs");
 var path = require("path");
 //var privKey = fs.createWriteStream();
 //var pubKey = fs.createWriteStream();
-
-
 //var crypto = require("crypto-js");
 var AES = require("crypto-js/aes");
 var SHA256 = require("crypto-js/sha256");
@@ -49,6 +47,7 @@ var message = "Booyakasha!";
 
 var dotenv = require("dotenv");
 dotenv.load();
+
 //var _ = require("lodash");
 //var express = require("express");
 var bodyParser = require("body-parser");
@@ -63,6 +62,7 @@ var moment = require("moment");
 //var db = require("monk")(process.env.MONGOHQ_URL || "mongodb://localhost/foodpoints");
 var db = require("monk")("104.131.255.24/HackDuke");
 var users = db.get("users");
+var transactions = db.get("tran");
 var keys = db.get("keys");
 
 //var users = db.get("users");
@@ -73,7 +73,7 @@ var keys = db.get("keys");
 //var munge = require("munge"); //obfuscate email
 
 var key = new NodeRSA({
-b: 512
+  b: 512
 });
 
 
@@ -81,31 +81,44 @@ var twilio = require("twilio")("ACd566c2614fae1998ae89a275952b4ccc", "dfeacbb442
 
 var numVisits = 0;
 
-app.use("/users/new", bodyParser.json());
-app.use("/deposits", bodyParser.json());
-app.use("/twilio", bodyParser.urlencoded({
-  extended: false
-}));
+app.engine('jade', require('jade').__express);
+app.use(express.static(__dirname + '/public'));
+// app.use("/getUser", bodyParser.json());
+// app.use("/users/new", bodyParser.json());
+// app.use("/deposits", bodyParser.json());
+// app.use("/twilio", bodyParser.urlencoded({
+//   extended: false
+// }));
+app.use(bodyParser.json()); // for parsing application/json
+app.use(bodyParser.urlencoded({
+  extended: true
+})); // for parsing application/x-www-form-urlencoded
 app.listen(process.env.PORT || 3000, function() {
   console.log("Node app is running");
 });
 
-app.get("/", function(req, res) {
+app.get('/', function(req, res) {
   numVisits++;
-  res.set("text/plain");
-  //res.send("Hi Brandon!!! You"re visiting for the " + numVisits + " time!");
-  res.send("Result of hashing " + message + " is " + SHA256(message));
-  res.end();
-  console.log("GET Request received");
-
-  console.log("Result of hashing " + message + " is " + SHA256(message));
-
-  console.log("All users: ");
-  console.log();
-  users.find({}, function(err, res) {
-    console.log(res);
+  res.render('index.jade', {
+    numVisits: numVisits
   });
 });
+
+// app.get("/", function(req, res) {
+//   res.set("text/plain");
+//   //res.send("Hi Brandon!!! You"re visiting for the " + numVisits + " time!");
+//   res.send("Result of hashing " + message + " is " + SHA256(message));
+//   res.end();
+//   console.log("GET Request received");
+//
+//   console.log("Result of hashing " + message + " is " + SHA256(message));
+//
+//   console.log("All users: ");
+//   console.log();
+//   users.find({}, function(err, res) {
+//     console.log(res);
+//   });
+// });
 
 // Transaction requests sent by SMS
 app.post("/deposits", function(req, res) {
@@ -168,7 +181,7 @@ app.post("/users/new", function(req, res) {
     console.log("Sending JSON object with " + Object.keys(info).length + " keys");
     console.log(info);
     res.set("app/json").send(info);
-    res.end(); 
+    res.end();
     var keyInfo = {
       "id": keyId,
       "Private Key": privKey
@@ -209,9 +222,9 @@ app.post("/users/new", function(req, res) {
     keyId = reply["_id"];
     console.log("Key id is " + keyId);
   });
-//  key = new NodeRSA({
-//    b: 512
-//  });
+  //  key = new NodeRSA({
+  //    b: 512
+  //  });
   //    key.generateKeyPair((Math.floor((Math.random() * 10)* + 1))*8);
   key.generateKeyPair();
   var privKey = key.getPrivatePEM();
@@ -237,5 +250,19 @@ app.post("/users/new", function(req, res) {
 
 app.post("/twilio", function(req, res) {
   console.log("twilio req is", req.body.Body);
-  res.send("hi!");
+  transactions.insert({
+    message: req.body.Body
+  });
+  res.send("done");
+});
+
+app.post("/getUser", function(req, res) {
+  console.log("req body",
+    req.body);
+  users.find({
+    name: req.body.userName
+  }, function(err, doc) {
+    res.json(doc);
+
+  });
 });
