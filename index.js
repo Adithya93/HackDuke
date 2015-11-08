@@ -1,4 +1,3 @@
-"use strict";
 var http = require('http');
 var express = require('express');
 var app = express();
@@ -53,10 +52,10 @@ dotenv.load();
 var express = require('express');
 var bodyParser = require('body-parser');
 var session = require('cookie-session');
-var app = express();
-// var request = require('request');
-// var async = require('async');
-// var moment = require('moment');
+//var app = express();
+var request = require('request');
+var async = require('async');
+var moment = require('moment');
 // var sendgrid = require("sendgrid")(process.env.SENDGRID_USERNAME, process.env.SENDGRID_PASSWORD);
 //var token_broker = "https://oauth.oit.duke.edu/oauth/token.php";
 //var duke_card_host = "https://dukecard-proxy.oit.duke.edu";
@@ -65,10 +64,6 @@ var app = express();
 var db = require('monk')('104.131.255.24/HackDuke');
 var users = db.get('users');
 var keys = db.get('keys');
-app.configure(function() {
-  /* Configure your express app... */
-  app.use(express.urlencoded());
-});
 
 //var users = db.get("users");
 //var balances = db.get("balances");
@@ -85,77 +80,63 @@ app.use(bodyParser.json());
 //app.use('/deposits', bodyParser.urlencoded({extended : false}));
 
 app.listen(process.env.PORT || 3000, function() {
-  console.log("Node app is running");
+    console.log("Node app is running");
 });
 
-app.get('/', function(req, res) {
-  numVisits++;
-  res.set('text/plain');
-  //res.send("Hi Brandon!!! You're visiting for the " + numVisits + " time!");
-  res.send("Result of hashing " + message + " is " + SHA256(message));
-  res.end();
-  console.log("GET Request received");
+app.get('/', function(req, res){
+    numVisits ++;
+    res.set('text/plain');
+    //res.send("Hi Brandon!!! You're visiting for the " + numVisits + " time!");
+    res.send("Result of hashing " + message + " is " + SHA256(message));
+    res.end();
+    console.log("GET Request received");
 
-  console.log("Result of hashing " + message + " is " + SHA256(message));
+    console.log("Result of hashing " + message + " is " + SHA256(message));
 
-  console.log("All users: ");
-  users.find({}, function(err, res) {
-    console.log(res);
-  });
+    console.log("All users: ");
+    console.log();
+    users.find({}, function(err, res) {
+      console.log(res);  
+    });
 });
 
 // Transaction requests sent by SMS
 app.post('/deposits', function(req, res) {
-  var body = req.body;
-  //	console.log("Received deposit string " + JSON.stringify(req.body));
-  //	res.send();
-  res.set('text/plain').send('Your encrypted message is ' + SHA256(body)).end();
-});
-
-var twilio = require('twilio')('ACd566c2614fae1998ae89a275952b4ccc', 'dfeacbb442ea9601ae93a0c3ff505d54');
-//Twilio request authentication
-app.post('/twilio', function(req, res) {
-  if (twilio.validateExpressRequest(req, 'dfeacbb442ea9601ae93a0c3ff505d54')) {
-    var resp = new twilio.TwimlResponse();
-    resp.say('express sez - hello twilio!');
-    console.log(req);
-    res.type('text/xml');
-    res.send(resp.toString());
-  } else {
-    res.send('you are not twilio.  Buzz off.');
-  }
+	var body = req.body;
+//	console.log("Received deposit string " + JSON.stringify(req.body));
+//	res.send();
+	res.set('text/plain').send('Your encrypted message is ' + SHA256(body)).end();
 });
 
 
 // Registration of new user
-app.post('/users/new', function(req, res) {
+app.post('/users/new', function(req, res){
 
-  var newUser = req.body;
-  var keyId;
-  console.log("Received JSON object for new user:");
-  console.log(newUser);
-  users.insert(newUser, function(err, reply) {
-    //res.send(reply);
-    console.log("Added new user to database");
-    keyId = reply['_id'];
-    console.log("Key id is " + keyId);
-  });
-  //var key
-  var key = new NodeRSA({
-    b: 512
-  });
-
-  var privKey = key.getPrivatePEM();
-  var pubKey = key.getPublicPEM();
-  var info = "Your public key is:\n" + pubKey;
-  res.send(info + pubKey);
-  res.end();
-  var keyInfo = {
-    'id': keyId,
-    'Private Key': privKey
-  };
-  keys.insert(keyInfo, function(err, rep) {
-    console.log('Saved new private key into database');
-    console.log(rep);
-  });
+    var newUser = req.body;
+    var keyId;
+    var key;
+    console.log("Received JSON object for new user:");
+    console.log(newUser);
+    newUser['balance'] = 0;
+    users.insert(newUser, function(err, reply) {
+        console.log("Added new user to database");
+        keyId = reply['_id'];
+        console.log("Key id is " + keyId);
+    });
+    key = new NodeRSA({b: 512});
+//    key.generateKeyPair((Math.floor((Math.random() * 10)* + 1))*8);
+    key.generateKeyPair();
+    var privKey = key.getPrivatePEM();
+    var pubKey = key.getPublicPEM();
+    //var info = "Your public key is:\n" + pubKey;
+    var info = {'Key' : pubKey, 'ID' : keyId};
+    res.set('app/json').send(info);
+    res.end();
+    var keyInfo = {'id' : keyId, 'Private Key' : privKey};
+    keys.insert(keyInfo, function(err, rep) {
+        console.log('Saved new private key into database');
+        console.log(rep);
+    });
 });
+
+
