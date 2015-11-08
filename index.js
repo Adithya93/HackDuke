@@ -200,6 +200,8 @@ app.post("/users/new", function(req, res) {
     "Key": pubKey,
     "ID": keyId
   };
+  console.log('Pub key being sent is of type ' + typeof(pubKey));
+
   res.set("app/json").send(info);
   res.end();
   var keyInfo = {
