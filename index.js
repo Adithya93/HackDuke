@@ -165,7 +165,7 @@ app.post("/users/new", function(req, res) {
   newUser["balance"] = 0;
   users.insert(newUser, function(err, reply) {
     console.log("Added new user to database");
-    keyId = reply["_id"];
+    keyId = reply["id"];
     console.log("Key id is " + keyId);
 
     key = new NodeRSA({
