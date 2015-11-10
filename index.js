@@ -11,9 +11,7 @@ var AES = require("crypto-js/aes");
 var SHA256 = require("crypto-js/sha256");
 //var NodeRSA = require("node-rsa");
 var crypto = require("crypto");
-
 //var sign = crypto.createSign("RSA-SHA256");
-
 var NodeRSA = require("node-rsa");
 
 //var key = new NodeRSA({b: 512});
@@ -137,18 +135,20 @@ app.post("/deposits", function(req, res) {
   var encrypted = body['encrypt_total'];
   var timeStamp = body['timestamp'];
   res.sendStatus(200);
-  var privateKey = keys.find({'id':keyId}, function(err, reply) {
+  var privateKey = keys.find({
+    'id': keyId
+  }, function(err, reply) {
     console.log('Private key object in DB is\n' + JSON.stringify(reply));
     var privKeyStr = reply[0]['Private Key'];
     console.log('Private key retrieved is\n' + privKeyStr);
 
-//    var start = "-----BEGIN PUBLIC KEY-----\n";
-//    var end = "\n-----END PUBLIC KEY-----";
+    //    var start = "-----BEGIN PUBLIC KEY-----\n";
+    //    var end = "\n-----END PUBLIC KEY-----";
 
-//    var legitStr = privKeyStr.substring(privKeyStr.indexOf(start) + start.length, privKeyStr.indexOf(end));
+    //    var legitStr = privKeyStr.substring(privKeyStr.indexOf(start) + start.length, privKeyStr.indexOf(end));
     //var privKey = new NodeRSA(privKeyStr);
     //var legitKey = new NodeRSA(privKeyStr);
-    
+
     var key = new NodeRSA({
       b: 512
     });
@@ -158,27 +158,25 @@ app.post("/deposits", function(req, res) {
     //console.log(typeof(privKey));
     //console.log('Is key recognized as private? ' + legitKey.isPrivate());
 
-    try{
-//        var decrypted = legitKey.decrypt(encryptedMessage, 'base64');
-        var decryptedMessage = legitKey.decrypt(encryptedMessage, 'utf8');
-        console.log('Decrypted message is ' + decryptedMessage);
-    }
-    catch (error) {
-        console.log('Even local encryption-decryption not working');
-        console.log(error);
+    try {
+      //        var decrypted = legitKey.decrypt(encryptedMessage, 'base64');
+      var decryptedMessage = legitKey.decrypt(encryptedMessage, 'utf8');
+      console.log('Decrypted message is ' + decryptedMessage);
+    } catch (error) {
+      console.log('Even local encryption-decryption not working');
+      console.log(error);
     }
 
 
 
     try {
-    //    var decrypted = privKey.decrypt(encrypted, 'base64');
-        console.log('Trying to decrypt ' + encrypted);
-        //var decrypted = legitKey.decrypt(encrypted, 'base64');
-        var decrypted = legitKey.decrypt(encrypted, 'utf8');
-    }
-    catch (error) {
-        console.log('Problem decrypting! Probably an invalid hash!');
-        console.log(error);
+      //    var decrypted = privKey.decrypt(encrypted, 'base64');
+      console.log('Trying to decrypt ' + encrypted);
+      //var decrypted = legitKey.decrypt(encrypted, 'base64');
+      var decrypted = legitKey.decrypt(encrypted, 'utf8');
+    } catch (error) {
+      console.log('Problem decrypting! Probably an invalid hash!');
+      console.log(error);
     }
     console.log('Decrypted message is:\n');
     console.log(decrypted);
@@ -201,7 +199,7 @@ app.post("/users/new", function(req, res) {
   newUser["balance"] = 0;
   users.insert(newUser, function(err, reply) {
     console.log("Added new user to database");
-    
+
     key = new NodeRSA({
       b: 512
     });
@@ -224,7 +222,7 @@ app.post("/users/new", function(req, res) {
       "ID": keyId
     };
 
-    
+
     //var privTest = new NodeRSA(privKey);
     var pubTest = new NodeRSA(pubKey);
     encryptedMessage = pubTest.encrypt(testStr, 'base64');
